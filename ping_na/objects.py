@@ -7,12 +7,12 @@ class Ball(GameObject):
     'A ball.'
     def __init__(self, position, display_surface):
         'init ball.'
-        super().__init__()
+        super().__init__(position)
         ball_radius = 9
         physics_margin = 1
         body_width = (ball_radius - physics_margin) * 2
-        self.add_component(PhysicsComponent(position, body_width, body_width))
-        self.add_component(GraphicsComponent('circle', display_surface, body_width, body_width, position))
+        self.add_component(PhysicsComponent(self.position, body_width, body_width))
+        self.add_component(GraphicsComponent('circle', display_surface, body_width, body_width, self.position))
 
     # def check_collision(self, other_rect):
     #     if self.body.colliderect(other_rect):
@@ -46,11 +46,11 @@ class Paddle(GameObject):
     'A paddle.'
     def __init__(self, position, display_surface):
         'init paddle'
-        super().__init__()
+        super().__init__(position)
         paddle_width = 60
         paddle_height = 20
-        self.add_component(PhysicsComponent(position, paddle_width, paddle_height))
-        self.add_component(GraphicsComponent('rectangle', display_surface, paddle_width, paddle_height, position))
+        self.add_component(PhysicsComponent(self.position, paddle_width, paddle_height))
+        self.add_component(GraphicsComponent('rectangle', display_surface, paddle_width, paddle_height, self.position))
 
     # def draw(self):
     #     pygame.draw.rect(DISPLAY_SURFACE, (255, 0, 0), self.body)

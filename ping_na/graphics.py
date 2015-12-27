@@ -17,13 +17,20 @@ class GraphicsComponent(Component):
         self.body_type = body_type
         self.display_surface = display_surface
         self.color = color
-        self.shape = pygame.Rect(position[0] - width / 2, position[1] - height / 2, width, height)
+        self.width = width
+        self.height = height
+        self.parent_object_position = position
+        # self.shape = pygame.Rect(position[0] - width / 2, position[1] - height / 2, width, height)
 
-    def update_position(self, position):
-        self.shape.center = position
+    # def update_position(self, position):
+    #     self.shape.center = position
 
     def draw(self):
+        # self.logger.info('drawing at position %s', self.parent_object_position)
         if self.body_type == 'circle':
-            pygame.draw.circle(self.display_surface, self.color, self.shape.center, self.shape.width // 2)
+            pygame.draw.circle(self.display_surface, self.color, self.parent_object_position, self.width // 2)
         if self.body_type == 'rectangle':
-            pygame.draw.rect(self.display_surface, (255, 0, 0), self.shape)
+            pygame.draw.rect(self.display_surface, (255, 0, 0), \
+                             pygame.Rect(self.parent_object_position[0] - self.width // 2, \
+                                                                            self.parent_object_position[1] - self.height // 2, \
+                                                                            self.width, self.height))

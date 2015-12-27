@@ -1,10 +1,14 @@
+import logging
+
 class Component:
     def __init__(self, name):
         self.name = name
+        self.logger = logging.getLogger(__name__)
 
 
 class GameObject:
-    def __init__(self):
+    def __init__(self, position = [0, 0]):
+        self.position = position
         self.components = {}
 
     def add_component(self, component):
@@ -19,6 +23,7 @@ class GameObject:
 
 class System:
     def __init__(self, clock):
+        self.logger = logging.getLogger(__name__)
         self.clock = clock
         self.objects = []
 

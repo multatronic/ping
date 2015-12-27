@@ -14,19 +14,19 @@ class Ping():
         logging.basicConfig(level=logging.DEBUG)
         self.clock = pygame.time.Clock()
 
-        self.systems = {
-            'physics': PhysicsSystem(self.clock),
-            'graphics': GraphicsSystem(self.clock),
-            'input': InputSystem(self.clock)
-        }
-
         self.game_running = True
         self.fps = 30
         self.board_width = 800
         self.board_height = 600
         self.player_start_pos = [self.board_width / 2, 20]
         self.enemy_start_pos = [self.board_width / 2, self.board_height - 20]
-        self.ball_position = (400, 300)
+        self.ball_position = [400, 300]
+
+        self.systems = {
+            'physics': PhysicsSystem(self.clock, self.board_width, self.board_height),
+            'graphics': GraphicsSystem(self.clock),
+            'input': InputSystem(self.clock)
+        }
 
         pygame.init()
         self.display_surface = pygame.display.set_mode((800, 600))
