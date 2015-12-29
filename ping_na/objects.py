@@ -1,6 +1,8 @@
 from ping_na.component import *
+from ping_na.input import *
 from ping_na.physics import *
 from ping_na.graphics import *
+from pygame import KEYDOWN, K_LEFT, K_RIGHT
 
 
 class Ball(GameObject):
@@ -8,38 +10,23 @@ class Ball(GameObject):
     def __init__(self, position, display_surface):
         'init ball.'
         super().__init__(position)
+        ball_speed = 6
         ball_radius = 9
         physics_margin = 1
         body_width = (ball_radius - physics_margin) * 2
-        self.add_component(PhysicsComponent(self.position, body_width, body_width))
+        self.add_component(PhysicsComponent(self.position, body_width, body_width, True))
         self.add_component(GraphicsComponent('circle', display_surface, body_width, body_width, self.position))
+        self.add_component(InputComponent({
+            KEYDOWN: {
+                K_LEFT: lambda: self.kick_off_ball([-5, ball_speed]),
+                K_RIGHT: lambda: self.kick_off_ball([5, ball_speed])
+            }
+        }))
 
-    # def check_collision(self, other_rect):
-    #     if self.body.colliderect(other_rect):
-    #         delta = [other_rect.centerx - self.body.centerx, other_rect.centery - self.body.centery]
-    #
-    #         if delta[0] <= PADDLE_WIDTH:
-    #             self.reverse_horizontal_velocity()
-    #         elif delta[1] <= PADDLE_HEIGHT:
-    #             self.reverse_vertical_velocity()
-    #         else:
-    #             self.reverse_horizontal_velocity()
-    #             self.reverse_vertical_velocity()
-    #     else:
-    #         return None
-    #
-    # def move(self):
-    #     super().move()
-    #     # bounce the ball if necessary
-    #     if self.body.left == 0 or self.body.right == BOARD_WIDTH:
-    #         self.reverse_horizontal_velocity()
-    #     if self.body.top == 0 or self.body.bottom == BOARD_HEIGHT:
-    #         self.reverse_vertical_velocity()
-
-    # def draw(self):
-    #     global DISPLAY_SURFACE
-    #     pygame.draw.circle(DISPLAY_SURFACE, (255, 0, 0), self.body.center, BALL_RADIUS)
-        # super().draw()
+    def kick_off_ball(self, velocity):
+        ball_stationary = self.get_component('physics').get_velocity() == [0, 0]
+        if ball_stationary:
+            self.get_component('physics').set_velocity(velocity)
 
 
 class Paddle(GameObject):
@@ -51,6 +38,3 @@ class Paddle(GameObject):
         paddle_height = 20
         self.add_component(PhysicsComponent(self.position, paddle_width, paddle_height))
         self.add_component(GraphicsComponent('rectangle', display_surface, paddle_width, paddle_height, self.position))
-
-    # def draw(self):
-    #     pygame.draw.rect(DISPLAY_SURFACE, (255, 0, 0), self.body)

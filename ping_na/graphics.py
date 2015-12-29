@@ -20,10 +20,6 @@ class GraphicsComponent(Component):
         self.width = width
         self.height = height
         self.parent_object_position = position
-        # self.shape = pygame.Rect(position[0] - width / 2, position[1] - height / 2, width, height)
-
-    # def update_position(self, position):
-    #     self.shape.center = position
 
     def draw(self):
         # self.logger.info('drawing at position %s', self.parent_object_position)

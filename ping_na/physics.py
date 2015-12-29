@@ -14,22 +14,31 @@ class PhysicsSystem(System):
             component.move()
             if component.body.left < 0:
                 component.body.left = 0
+                if component.bounce:
+                    component.reverse_horizontal_velocity()
             elif component.body.right > self.board_width:
                 component.body.right = self.board_width
+                if component.bounce:
+                    component.reverse_horizontal_velocity()
             if component.body.top < 0:
                 component.body.top = 0
+                if component.bounce:
+                    component.reverse_vertical_velocity()
             elif component.body.bottom > self.board_height:
                 component.body.bottom = self.board_height
+                if component.bounce:
+                    component.reverse_vertical_velocity()
             component.sync_position()
 
 
 class PhysicsComponent(Component):
     'A physical object.'
-    def __init__(self, position, width, height):
+    def __init__(self, position, width, height, bounce=False):
         'init object.'
         super().__init__('physics')
         half_width = width / 2
         half_height = height / 2
+        self.bounce = bounce
         self.parent_object_position = position
         self.velocity = [0, 0]
         self.body = pygame.Rect((position[0] - half_width), (position[1] - half_height), width, height)

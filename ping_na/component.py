@@ -1,4 +1,4 @@
-import logging
+import logging, pygame
 
 class Component:
     def __init__(self, name):
