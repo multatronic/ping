@@ -50,8 +50,8 @@ class Ping():
         player_paddle = Paddle(self.player_start_pos, self.display_surface)
         player_paddle.add_component(InputComponent({
             KEYDOWN: {
-                K_LEFT: lambda: player_paddle.get_component('physics').set_velocity((-5, 0)),
-                K_RIGHT: lambda: player_paddle.get_component('physics').set_velocity((5, 0))
+                K_LEFT: lambda: player_paddle.get_component('physics').set_velocity([-5, 0]),
+                K_RIGHT: lambda: player_paddle.get_component('physics').set_velocity([5, 0])
             }
         }))
         self.add_game_object(player_paddle)
