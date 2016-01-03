@@ -30,6 +30,7 @@ class Ping():
 
         pygame.init()
         self.display_surface = pygame.display.set_mode((self.board_width, self.board_height))
+        pygame.display.set_caption('Oh, the excitement!')
         self.systems['input'].add_keyboard_input_handler(KEYDOWN, K_ESCAPE, self.quit_game)
         self.systems['input'].add_generic_event_handler(QUIT, self.quit_game)
 
@@ -47,13 +48,7 @@ class Ping():
 
     def run_game_loop(self):
         'Main game loop'
-        player_paddle = Paddle(self.player_start_pos, self.display_surface)
-        player_paddle.add_component(InputComponent({
-            KEYDOWN: {
-                K_LEFT: lambda: player_paddle.get_component('physics').set_velocity([-5, 0]),
-                K_RIGHT: lambda: player_paddle.get_component('physics').set_velocity([5, 0])
-            }
-        }))
+        player_paddle = PlayerPaddle(self.player_start_pos, self.display_surface)
         self.add_game_object(player_paddle)
 
         # Add enemy paddle.

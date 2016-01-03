@@ -14,19 +14,19 @@ class PhysicsSystem(System):
         if component.body.left < 0:
             component.body.left = 0
             if component.bounces:
-                component.reverse_horizontal_velocity()
+                component.reverse_horizontal_direction()
         elif component.body.right > self.board_width:
             component.body.right = self.board_width
             if component.bounces:
-                component.reverse_horizontal_velocity()
+                component.reverse_horizontal_direction()
         if component.body.top < 0:
             component.body.top = 0
             if component.bounces:
-                component.reverse_vertical_velocity()
+                component.reverse_vertical_direction()
         elif component.body.bottom > self.board_height:
             component.body.bottom = self.board_height
             if component.bounces:
-                component.reverse_vertical_velocity()
+                component.reverse_vertical_direction()
 
     def check_component_collisions(self, component):
         for game_object in self.objects:
@@ -34,9 +34,9 @@ class PhysicsSystem(System):
             if current_component not in self.checked_components and current_component != component \
                     and self.are_rects_colliding(component.body, current_component.body):
                     if component.bounces:
-                        component.reverse_velocity()
+                        component.reverse_direction()
                     if current_component.bounces:
-                        current_component.reverse_vertical_velocity()
+                        current_component.reverse_vertical_direction()
 
     def are_rects_colliding(self, from_rect, to_rect):
         # use pygame builtin
@@ -56,6 +56,7 @@ class PhysicsSystem(System):
         self.checked_components.clear()
         for game_object in self.objects:
             component = game_object.get_component('physics')
+            component.accelerate()
             component.move()
             self.check_border_collisions(component)
             self.check_component_collisions(component)
@@ -65,36 +66,54 @@ class PhysicsSystem(System):
 
 class PhysicsComponent(Component):
     'A physical object.'
-    def __init__(self, position, width, height, bounces=False):
+    def __init__(self, position, width, height, direction=[0, 0], acceleration=None, max_speed=1, bounces=False):
         'init object.'
         super().__init__('physics')
         half_width = width / 2
         half_height = height / 2
         self.bounces = bounces
         self.parent_object_position = position
-        self.velocity = [0, 0]
+        self.direction = direction
+        self.acceleration = acceleration
+        self.speed = 0
+        self.max_speed = max_speed
+        if self.acceleration is None:
+            self.speed = max_speed
+        # self.velocity = [0, 0]
         self.body = pygame.Rect((position[0] - half_width), (position[1] - half_height), width, height)
 
-    def set_velocity(self, velocity):
-        self.velocity = velocity
+    def set_direction(self, direction):
+        self.direction = direction
 
-    def get_velocity(self):
-        return self.velocity
+    def get_direction(self):
+        return self.direction
 
-    def reverse_velocity(self):
-        self.reverse_horizontal_velocity()
-        self.reverse_vertical_velocity()
+    def reverse_direction(self):
+        self.reverse_horizontal_direction()
+        self.reverse_vertical_direction()
 
-    def reverse_horizontal_velocity(self):
-        self.velocity[0] *= -1
+    def reverse_horizontal_direction(self):
+        self.direction[0] *= -1
 
-    def reverse_vertical_velocity(self):
-        self.velocity[1] *= -1
+    def reverse_vertical_direction(self):
+        self.direction[1] *= -1
 
     def sync_position(self):
         self.parent_object_position[:] = list(self.body.center)
 
+    def decelerate(self):
+        if self.acceleration is not None:
+            self.speed -= self.acceleration
+            if self.speed <= 0:
+                self.speed = 0
+
+    def accelerate(self):
+        if self.acceleration is not None:
+            self.speed += self.acceleration
+            if self.speed >= self.max_speed:
+                self.speed = self.max_speed
+
     def move(self):
-        self.body.move_ip(self.velocity[0], self.velocity[1])
+        self.body.move_ip(self.direction[0] * self.speed, self.direction[1] * self.speed)
 
 
