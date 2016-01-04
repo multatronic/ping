@@ -1,4 +1,4 @@
-from ping_na.component import *
+from ping_na.ecs import *
 from ping_na.input import *
 from ping_na.physics import *
 from ping_na.graphics import *
@@ -10,23 +10,24 @@ class Ball(GameObject):
     def __init__(self, position, display_surface):
         'init ball.'
         super().__init__(position)
-        ball_speed = 6
+        ball_speed = 100
         ball_radius = 9
         physics_margin = 1
         body_width = (ball_radius - physics_margin) * 2
-        self.add_component(PhysicsComponent(self.position, body_width, body_width, [0, 0], None, ball_speed, True))
+        self.add_component(PhysicsComponent(self.position, body_width, body_width, [0, 0], 0, ball_speed, True))
         self.add_component(GraphicsComponent('circle', display_surface, body_width, body_width, self.position))
         self.add_component(InputComponent({
             KEYDOWN: {
-                K_LEFT: lambda: self.kick_off_ball([-1, -0.5]),
-                K_RIGHT: lambda: self.kick_off_ball([1, 0.5])
+                K_LEFT: lambda: self.kick_off_ball([-1, -0.5], ball_speed),
+                K_RIGHT: lambda: self.kick_off_ball([1, 0.5], ball_speed)
             }
         }))
 
-    def kick_off_ball(self, direction):
+    def kick_off_ball(self, direction, ball_speed):
         ball_stationary = self.get_component('physics').get_direction() == [0, 0]
         if ball_stationary:
             self.get_component('physics').set_direction(direction)
+            self.get_component('physics').speed = ball_speed
 
 
 class Paddle(GameObject):
@@ -36,7 +37,10 @@ class Paddle(GameObject):
         super().__init__(position)
         paddle_width = 60
         paddle_height = 20
-        self.add_component(PhysicsComponent(self.position, paddle_width, paddle_height, [0, 0], 1, 5, False))
+        paddle_acceleration = 100
+        paddle_max_speed = 300
+        self.add_component(PhysicsComponent(self.position, paddle_width, paddle_height, [0, 0], paddle_acceleration,
+                                            paddle_max_speed, False))
         self.add_component(GraphicsComponent('rectangle', display_surface, paddle_width, paddle_height, self.position))
 
 

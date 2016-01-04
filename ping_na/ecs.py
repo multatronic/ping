@@ -22,13 +22,12 @@ class GameObject:
 
 
 class System:
-    def __init__(self, clock):
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.clock = clock
         self.objects = []
 
     def add_object(self, game_object):
         self.objects.append(game_object)
 
-    def update(self):
+    def update(self, delta_time):
         raise NotImplementedError

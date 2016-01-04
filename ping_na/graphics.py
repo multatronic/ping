@@ -1,12 +1,12 @@
-from ping_na.component import Component, System
+from ping_na.ecs import Component, System
 import pygame
 
 
 class GraphicsSystem(System):
-    def __init__(self, clock):
-        super().__init__(clock)
+    def __init__(self):
+        super().__init__()
 
-    def update(self):
+    def update(self, delta_time):
         for game_object in self.objects:
             game_object.get_component('graphics').draw()
 

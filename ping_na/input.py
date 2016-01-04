@@ -1,11 +1,10 @@
-from ping_na.component import Component, System
-from pygame.locals import QUIT, KEYUP, KEYDOWN, K_ESCAPE, K_LEFT, K_RIGHT, K_DOWN
+from ping_na.ecs import Component, System
 import pygame
 
 
 class InputSystem(System):
-    def __init__(self, clock):
-        super().__init__(clock)
+    def __init__(self):
+        super().__init__()
         self.keyboard_input_handlers = {}
         self.generic_handlers = {}
 
@@ -27,7 +26,7 @@ class InputSystem(System):
             for key, handler in game_object.get_component('input').input_handlers[event_type].items():
                 self.add_keyboard_input_handler(event_type, key, handler)
 
-    def update(self):
+    def update(self, delta_time):
         for event in pygame.event.get():
             if event.type in self.keyboard_input_handlers and \
                             event.key in self.keyboard_input_handlers[event.type]:

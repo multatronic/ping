@@ -1,8 +1,8 @@
 __author__ = 'revok'
 
 import pygame, logging, math
-
-from ping_na.component import *
+from pygame import K_ESCAPE, QUIT
+from ping_na.ecs import *
 from ping_na.physics import *
 from ping_na.graphics import *
 from ping_na.objects import *
@@ -23,9 +23,9 @@ class Ping():
         self.ball_position = [400, 300]
 
         self.systems = {
-            'physics': PhysicsSystem(self.clock, self.board_width, self.board_height),
-            'graphics': GraphicsSystem(self.clock),
-            'input': InputSystem(self.clock)
+            'physics': PhysicsSystem(self.board_width, self.board_height),
+            'graphics': GraphicsSystem(),
+            'input': InputSystem()
         }
 
         pygame.init()
@@ -42,9 +42,9 @@ class Ping():
             if game_object.get_component(name) is not None:
                 system.add_object(game_object)
 
-    def update_systems(self):
+    def update_systems(self, delta_time):
         for name, system in self.systems.items():
-            system.update()
+            system.update(delta_time)
 
     def run_game_loop(self):
         'Main game loop'
@@ -60,7 +60,7 @@ class Ping():
         while self.game_running:
             self.clock.tick(self.fps)
             self.draw_board()
-            self.update_systems()
+            self.update_systems(self.clock.get_time() / 1000)  # pass frame time in seconds
             pygame.display.update()
 
     def draw_board(self):

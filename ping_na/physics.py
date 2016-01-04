@@ -1,10 +1,10 @@
-from ping_na.component import Component, System
+from ping_na.ecs import Component, System
 import pygame
 
 
 class PhysicsSystem(System):
-    def __init__(self, clock, board_width, board_height):
-        super().__init__(clock)
+    def __init__(self, board_width, board_height):
+        super().__init__()
         self.board_width = board_width
         self.board_height = board_height
         self.checked_components = []
@@ -51,22 +51,19 @@ class PhysicsSystem(System):
             in_vertical_margin = True
         return in_horizontal_margin and in_vertical_margin
 
-
-    def update(self):
+    def update(self, delta_time):
         self.checked_components.clear()
         for game_object in self.objects:
             component = game_object.get_component('physics')
-            component.accelerate()
-            component.move()
+            component.tick(delta_time)
             self.check_border_collisions(component)
             self.check_component_collisions(component)
-            component.sync_position()
             self.checked_components.append(component)
 
 
 class PhysicsComponent(Component):
     'A physical object.'
-    def __init__(self, position, width, height, direction=[0, 0], acceleration=None, max_speed=1, bounces=False):
+    def __init__(self, position, width, height, direction=[0, 0], acceleration=0, max_speed=1, bounces=False):
         'init object.'
         super().__init__('physics')
         half_width = width / 2
@@ -77,9 +74,10 @@ class PhysicsComponent(Component):
         self.acceleration = acceleration
         self.speed = 0
         self.max_speed = max_speed
-        if self.acceleration is None:
-            self.speed = max_speed
-        # self.velocity = [0, 0]
+
+        # keep float position to retain accuracy, and a rect for collision detection
+        self.f_x = position[0]
+        self.f_y = position[1]
         self.body = pygame.Rect((position[0] - half_width), (position[1] - half_height), width, height)
 
     def set_direction(self, direction):
@@ -101,19 +99,23 @@ class PhysicsComponent(Component):
     def sync_position(self):
         self.parent_object_position[:] = list(self.body.center)
 
-    def decelerate(self):
-        if self.acceleration is not None:
-            self.speed -= self.acceleration
-            if self.speed <= 0:
-                self.speed = 0
+    def tick(self, delta_time):
+        # accelerate
+        self.speed += self.acceleration * delta_time
+        if self.speed >= self.max_speed:
+            self.speed = self.max_speed
 
-    def accelerate(self):
-        if self.acceleration is not None:
-            self.speed += self.acceleration
-            if self.speed >= self.max_speed:
-                self.speed = self.max_speed
+        # update float positions
+        self.f_x += self.direction[0] * self.speed * delta_time
+        self.f_y += self.direction[1] * self.speed * delta_time
 
-    def move(self):
-        self.body.move_ip(self.direction[0] * self.speed, self.direction[1] * self.speed)
+        # convert to int for body Rect
+        self.body.center = [int(self.f_x), int(self.f_y)]
+
+        # sync rect center to parent object for use in other components
+        self.sync_position()
+
+
+
 
 
