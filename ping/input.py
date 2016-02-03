@@ -34,7 +34,7 @@ class InputSystem(System):
                     handler()
             if event.type in self.generic_handlers:
                 for handler in self.generic_handlers[event.type]:
-                    handler()
+                    handler(event)
 
 
 class InputComponent(Component):

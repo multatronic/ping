@@ -29,5 +29,9 @@ class System:
     def add_object(self, game_object):
         self.objects.append(game_object)
 
+    def remove_object(self, game_object):
+        if game_object in self.objects:
+            self.objects.remove(game_object)
+
     def update(self, delta_time):
         raise NotImplementedError

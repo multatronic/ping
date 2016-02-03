@@ -3,15 +3,18 @@ import pygame
 
 
 class PhysicsSystem(System):
-    def __init__(self, board_width, board_height):
+    def __init__(self, board_width, board_height, top_score_line, bottom_score_line):
         super().__init__()
         self.board_width = board_width
         self.board_height = board_height
         self.checked_components = []
+        self.top_score_line = top_score_line
+        self.bottom_score_line = bottom_score_line
 
-    def check_border_collisions(self, component):
+    def check_border_collisions(self, game_object):
         # check for border collisions
         border_hit = False
+        component = game_object.get_component('physics')
         if component.body.left < 0:
             component.body.left = 0
             border_hit = True
@@ -22,16 +25,18 @@ class PhysicsSystem(System):
             border_hit = True
             if component.bounces:
                 component.reverse_horizontal_direction()
-        if component.body.top < 0:
+        if component.bounces and component.body.top <= self.top_score_line:
+            # send a scoring event if the ball touches the top
+            pygame.event.post(pygame.event.Event(pygame.USEREVENT + 1, ball=game_object, side="top"))
+        elif component.body.top < 0:
             component.body.top = 0
             border_hit = True
-            if component.bounces:
-                component.reverse_vertical_direction()
+        if component.bounces and component.body.top <= self.top_score_line:
+            # send a scoring event if the ball touches the bottom
+            pygame.event.post(pygame.event.Event(pygame.USEREVENT + 1, ball=game_object, side="bottom"))
         elif component.body.bottom > self.board_height:
             component.body.bottom = self.board_height
             border_hit = True
-            if component.bounces:
-                component.reverse_vertical_direction()
         if border_hit and not component.bounces:
             component.full_stop()
 
@@ -63,7 +68,7 @@ class PhysicsSystem(System):
         for game_object in self.objects:
             component = game_object.get_component('physics')
             component.tick(delta_time)
-            self.check_border_collisions(component)
+            self.check_border_collisions(game_object)
             self.check_component_collisions(component)
             self.checked_components.append(component)
 

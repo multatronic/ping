@@ -23,7 +23,7 @@ class Ping():
         self.ball_position = [400, 300]
 
         self.systems = {
-            'physics': PhysicsSystem(self.board_width, self.board_height),
+            'physics': PhysicsSystem(self.board_width, self.board_height, 15, 585),
             'graphics': GraphicsSystem(),
             'input': InputSystem()
         }
@@ -33,14 +33,23 @@ class Ping():
         pygame.display.set_caption('Oh, the excitement!')
         self.systems['input'].add_keyboard_input_handler(KEYDOWN, K_ESCAPE, self.quit_game)
         self.systems['input'].add_generic_event_handler(QUIT, self.quit_game)
+        self.systems['input'].add_generic_event_handler(pygame.USEREVENT + 1, self.score_ball)
 
-    def quit_game(self):
+    def score_ball(self, event=None):
+        self.remove_game_object(event.ball)
+
+    def quit_game(self, event=None):
         self.game_running = False
 
     def add_game_object(self, game_object):
         for name, system in self.systems.items():
             if game_object.get_component(name) is not None:
                 system.add_object(game_object)
+
+    def remove_game_object(self, game_object):
+        for name, system in self.systems.items():
+            if game_object.get_component(name) is not None:
+                system.remove_object(game_object)
 
     def update_systems(self, delta_time):
         for name, system in self.systems.items():
