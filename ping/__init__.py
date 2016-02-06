@@ -18,6 +18,8 @@ class Ping():
         self.fps = 60
         self.board_width = 800
         self.board_height = 600
+        self.player_score = 0
+        self.enemy_score = 0
         self.player_start_pos = [self.board_width / 2, 10]
         self.enemy_start_pos = [self.board_width / 2, self.board_height - 10]
         self.ball_position = [400, 300]
@@ -29,6 +31,7 @@ class Ping():
         }
 
         pygame.init()
+        self.font = pygame.font.Font(None, 36)
         self.display_surface = pygame.display.set_mode((self.board_width, self.board_height))
         pygame.display.set_caption('Oh, the excitement!')
         self.systems['input'].add_keyboard_input_handler(KEYDOWN, K_ESCAPE, self.quit_game)
@@ -37,6 +40,16 @@ class Ping():
 
     def score_ball(self, event=None):
         self.reset_ball_position(event.ball)
+        if event.player_point:
+            self.player_score += 1
+        else:
+            self.enemy_score += 1
+
+    def show_score(self):
+        text = self.font.render(str(self.player_score), 0, (255, 255, 255))
+        self.display_surface.blit(text, (0, 0))
+        text = self.font.render(str(self.enemy_score), 0, (255, 255, 255))
+        self.display_surface.blit(text, (self.board_width - text.get_rect().width, 0))
 
     def reset_ball_position(self, ball):
         physics_component = ball.get_component('physics')
@@ -75,6 +88,7 @@ class Ping():
             self.clock.tick(self.fps)
             self.draw_board()
             self.update_systems(self.clock.get_time() / 1000)  # pass frame time in seconds
+            self.show_score()
             pygame.display.update()
 
     def draw_board(self):
