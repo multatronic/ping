@@ -23,7 +23,7 @@ class Ping():
         self.ball_position = [400, 300]
 
         self.systems = {
-            'physics': PhysicsSystem(self.board_width, self.board_height, 15, 585),
+            'physics': PhysicsSystem(self.board_width, self.board_height, 10, 590),
             'graphics': GraphicsSystem(),
             'input': InputSystem()
         }
@@ -36,7 +36,12 @@ class Ping():
         self.systems['input'].add_generic_event_handler(pygame.USEREVENT + 1, self.score_ball)
 
     def score_ball(self, event=None):
-        self.remove_game_object(event.ball)
+        self.reset_ball_position(event.ball)
+
+    def reset_ball_position(self, ball):
+        physics_component = ball.get_component('physics')
+        physics_component.sync_position(position=self.ball_position)
+        physics_component.set_direction([0, 0])
 
     def quit_game(self, event=None):
         self.game_running = False
@@ -63,7 +68,7 @@ class Ping():
         # Add enemy paddle.
         self.add_game_object(Paddle(self.enemy_start_pos, self.display_surface))
 
-        ball = Ball(self.ball_position, self.display_surface)
+        ball = Ball(list(self.ball_position), self.display_surface)
         self.add_game_object(ball)
 
         while self.game_running:

@@ -31,7 +31,7 @@ class PhysicsSystem(System):
         elif component.body.top < 0:
             component.body.top = 0
             border_hit = True
-        if component.bounces and component.body.top <= self.top_score_line:
+        if component.bounces and component.body.bottom >= self.bottom_score_line:
             # send a scoring event if the ball touches the bottom
             pygame.event.post(pygame.event.Event(pygame.USEREVENT + 1, ball=game_object, side="bottom"))
         elif component.body.bottom > self.board_height:
@@ -106,7 +106,10 @@ class PhysicsComponent(Component):
     def reverse_vertical_direction(self):
         self.direction[1] *= -1
 
-    def sync_position(self, body_to_floats=False):
+    def sync_position(self, body_to_floats=False, position=None):
+        if position is not None:
+            self.f_x = position[0]
+            self.f_y = position[1]
         if body_to_floats:
             self.f_x = self.body.centerx
             self.f_y = self.body.centery
