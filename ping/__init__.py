@@ -1,10 +1,6 @@
 __author__ = 'revok'
 
-import pygame, logging, math
 from pygame import K_ESCAPE, QUIT
-from ping.ecs import *
-from ping.physics import *
-from ping.graphics import *
 from ping.objects import *
 from ping.input import *
 
@@ -18,6 +14,8 @@ class Ping():
         self.fps = 60
         self.board_width = 800
         self.board_height = 600
+        self.score_limit = 3
+        self.victory_text = None
         self.player_score = 0
         self.enemy_score = 0
         self.player_start_pos = [self.board_width / 2, 10]
@@ -59,6 +57,16 @@ class Ping():
     def quit_game(self, event=None):
         self.game_running = False
 
+    def check_victory_condition(self):
+        if self.player_score >= self.score_limit:
+            self.victory_text = self.font.render('You win!', 0, (255, 255, 255))
+        elif self.enemy_score >= self.score_limit:
+            self.victory_text = self.font.render('You lose!', 0, (255, 255, 255))
+        if self.victory_text:
+            center = list(self.display_surface.get_rect().center)
+            center[0] -= self.victory_text.get_rect().width / 2
+            self.display_surface.blit(self.victory_text, center)
+
     def add_game_object(self, game_object):
         for name, system in self.systems.items():
             if game_object.get_component(name) is not None:
@@ -71,6 +79,10 @@ class Ping():
 
     def update_systems(self, delta_time):
         for name, system in self.systems.items():
+            # if there's already a winner we only want to draw objects (i.e. no movement)
+            # so we set delta time to zero to freeze everything
+            if self.victory_text is not None:
+                delta_time = 0
             system.update(delta_time)
 
     def run_game_loop(self):
@@ -85,15 +97,12 @@ class Ping():
         self.add_game_object(ball)
 
         while self.game_running:
+            self.display_surface.fill((0, 0, 0))
             self.clock.tick(self.fps)
-            self.draw_board()
             self.update_systems(self.clock.get_time() / 1000)  # pass frame time in seconds
             self.show_score()
+            self.check_victory_condition()
             pygame.display.update()
-
-    def draw_board(self):
-        self.display_surface.fill((0, 0, 0))
-
 
 if __name__ == '__main__':
     Ping().run_game_loop()
