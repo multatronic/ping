@@ -22,9 +22,10 @@ class GameObject:
 
 
 class System:
-    def __init__(self):
+    def __init__(self, event_bus=None):
         self.logger = logging.getLogger(__name__)
         self.objects = []
+        self.event_bus = event_bus
 
     def add_object(self, game_object):
         self.objects.append(game_object)

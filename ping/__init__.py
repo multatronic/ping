@@ -25,7 +25,7 @@ class Ping():
         self.event_bus = EventBus()
 
         self.systems = {
-            'physics': PhysicsSystem(self.board_width, self.board_height, 10, 590),
+            'physics': PhysicsSystem(self.event_bus, self.board_width, self.board_height, 10, 590),
             'graphics': GraphicsSystem(),
             'input': InputSystem()
         }
@@ -36,7 +36,7 @@ class Ping():
         pygame.display.set_caption('Oh, the excitement!')
         self.systems['input'].add_keyboard_input_handler(KEYDOWN, K_ESCAPE, self.quit_game)
         self.event_bus.add_event_handler(QUIT, self.quit_game)
-        self.event_bus.add_event_handler(pygame.USEREVENT + 1, self.score_ball)
+        self.event_bus.add_event_handler(BALL_SCORED, self.score_ball)
 
     def score_ball(self, event=None):
         self.reset_ball_position(event.ball)

@@ -2,9 +2,13 @@ from ping.ecs import Component, System
 import pygame
 
 
+BALL_SCORED = pygame.USEREVENT + 1
+BALL_HCHANGE = pygame.USEREVENT + 2
+BALL_VCHANGE = pygame.USEREVENT + 3
+
 class PhysicsSystem(System):
-    def __init__(self, board_width, board_height, top_score_line, bottom_score_line):
-        super().__init__()
+    def __init__(self, event_bus, board_width, board_height, top_score_line, bottom_score_line):
+        super().__init__(event_bus)
         self.board_width = board_width
         self.board_height = board_height
         self.checked_components = []
@@ -20,20 +24,23 @@ class PhysicsSystem(System):
             border_hit = True
             if component.bounces:
                 component.reverse_horizontal_direction()
+                # send a event if the ball changes direction
+                pygame.event.post(pygame.event.Event(BALL_HCHANGE, ball=game_object))
         elif component.body.right > self.board_width:
             component.body.right = self.board_width
             border_hit = True
             if component.bounces:
                 component.reverse_horizontal_direction()
+                pygame.event.post(pygame.event.Event(BALL_HCHANGE, ball=game_object))
         if component.bounces and component.body.top <= self.top_score_line:
             # send a scoring event if the ball touches the top
-            pygame.event.post(pygame.event.Event(pygame.USEREVENT + 1, ball=game_object, player_point=False))
+            pygame.event.post(pygame.event.Event(BALL_SCORED, ball=game_object, player_point=False))
         elif component.body.top < 0:
             component.body.top = 0
             border_hit = True
         if component.bounces and component.body.bottom >= self.bottom_score_line:
             # send a scoring event if the ball touches the bottom
-            pygame.event.post(pygame.event.Event(pygame.USEREVENT + 1, ball=game_object, player_point=True))
+            pygame.event.post(pygame.event.Event(BALL_SCORED, ball=game_object, player_point=True))
         elif component.body.bottom > self.board_height:
             component.body.bottom = self.board_height
             border_hit = True
@@ -46,9 +53,10 @@ class PhysicsSystem(System):
             if current_component not in self.checked_components and current_component != component \
                     and self.are_rects_colliding(component.body, current_component.body):
                     if component.bounces:
-                        component.reverse_direction()
+                        component.reverse_vertical_direction()
                     if current_component.bounces:
                         current_component.reverse_vertical_direction()
+                        pygame.event.post(pygame.event.Event(BALL_VCHANGE, ball=game_object))
 
     def are_rects_colliding(self, from_rect, to_rect):
         # use pygame builtin
