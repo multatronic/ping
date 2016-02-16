@@ -3,6 +3,7 @@ __author__ = 'revok'
 from pygame import K_ESCAPE, QUIT
 from ping.objects import *
 from ping.input import *
+from ping.events import *
 
 
 class Ping():
@@ -21,6 +22,7 @@ class Ping():
         self.player_start_pos = [self.board_width / 2, 10]
         self.enemy_start_pos = [self.board_width / 2, self.board_height - 10]
         self.ball_position = [400, 300]
+        self.event_bus = EventBus()
 
         self.systems = {
             'physics': PhysicsSystem(self.board_width, self.board_height, 10, 590),
@@ -33,8 +35,8 @@ class Ping():
         self.display_surface = pygame.display.set_mode((self.board_width, self.board_height))
         pygame.display.set_caption('Oh, the excitement!')
         self.systems['input'].add_keyboard_input_handler(KEYDOWN, K_ESCAPE, self.quit_game)
-        self.systems['input'].add_generic_event_handler(QUIT, self.quit_game)
-        self.systems['input'].add_generic_event_handler(pygame.USEREVENT + 1, self.score_ball)
+        self.event_bus.add_event_handler(QUIT, self.quit_game)
+        self.event_bus.add_event_handler(pygame.USEREVENT + 1, self.score_ball)
 
     def score_ball(self, event=None):
         self.reset_ball_position(event.ball)
@@ -100,6 +102,7 @@ class Ping():
             self.display_surface.fill((0, 0, 0))
             self.clock.tick(self.fps)
             self.update_systems(self.clock.get_time() / 1000)  # pass frame time in seconds
+            self.event_bus.tick()
             self.show_score()
             self.check_victory_condition()
             pygame.display.update()

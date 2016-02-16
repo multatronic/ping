@@ -7,8 +7,11 @@ class InputSystem(System):
         super().__init__()
         self.keyboard_input_handlers = {}
         self.generic_handlers = {}
+        self.type_list = []
 
     def add_keyboard_input_handler(self, event_type, key, handler):
+        if event_type not in self.type_list:
+            self.type_list.append(event_type)
         if event_type not in self.keyboard_input_handlers:
             self.keyboard_input_handlers[event_type] = {}
         if key not in self.keyboard_input_handlers[event_type]:
@@ -27,7 +30,7 @@ class InputSystem(System):
                 self.add_keyboard_input_handler(event_type, key, handler)
 
     def update(self, delta_time):
-        for event in pygame.event.get():
+        for event in pygame.event.get(self.type_list):
             if event.type in self.keyboard_input_handlers and \
                             event.key in self.keyboard_input_handlers[event.type]:
                 for handler in self.keyboard_input_handlers[event.type][event.key]:
